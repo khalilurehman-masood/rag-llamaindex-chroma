@@ -1,0 +1,35 @@
+fastapi-llamaindex/
+│
+├── main.py                       # FastAPI entry point
+├── routes.py                     # All API endpoints
+│
+├── core/                         # Core system and configuration
+│   ├── settings.py               # LlamaIndex Settings: LLM, embeddings, chunking, etc.
+│   ├── pipeline_config.py        # Controls which retriever/index type to use
+│   └── logger.py                 # Logging setup (optional)
+│
+├── services/                     # Main services layer (business logic)
+│   ├── upload_service.py         # Handles file uploads and user directories
+│   ├── index_service.py          # Handles document reading and indexing
+│   ├── retriever_service.py      # Manages retrievers (keyword, hybrid, semantic)
+│   ├── query_service.py          # Builds query engines using LlamaIndex
+│   └── user_service.py           # Manages user data (metadata, session tracking)
+│
+├── db/                           # Data persistence and vector stores
+│   ├── chroma_client.py          # Connects to local Chroma
+│   ├── storage_manager.py        # Maps user IDs to specific vector collections
+│   └── vector_store.py           # Defines store-level interactions
+│
+├── utils/                        # Helper utilities
+│   ├── file_utils.py             # File saving, path handling, user dirs
+│   ├── doc_utils.py              # LlamaIndex Document loading, metadata attachment
+│   ├── chunk_utils.py            # Different chunking methods for documents
+│   └── response_utils.py         # API response formatting
+│
+├── data/                         # Stored user-uploaded data
+│   └── <username>/               # Each user’s folder
+│
+└── tests/                        # Tests for each module
+    ├── test_upload.py
+    ├── test_index.py
+    └── test_query.py

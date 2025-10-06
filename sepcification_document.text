@@ -1,0 +1,435 @@
+🧠 Project Overview: Modular RAG Application using FastAPI + LlamaIndex + ChromaDB
+1. Purpose
+
+This project is a Retrieval-Augmented Generation (RAG) system built with FastAPI as the backend framework and LlamaIndex as the orchestration layer for document ingestion, embedding, indexing, and querying.
+The goal is to create a highly modular, easily maintainable, and extendable architecture that allows flexible integration of different LlamaIndex components (LLMs, embeddings, retrievers, query engines, etc.).
+
+2. Core Functionalities
+
+File Uploading
+
+Users upload documents (PDF, TXT, DOCX, etc.).
+
+Each user’s documents are saved in data/<username>/.
+
+When uploaded, the file path and username are passed to the indexing service.
+
+Document Indexing
+
+The file is read using LlamaIndex’s document readers.
+
+Embeddings are generated using OllamaEmbedding.
+
+Indexed data is stored in ChromaDB, with each user’s data in a separate collection.
+
+Querying
+
+Users query their indexed documents.
+
+The query engine searches ChromaDB for relevant chunks.
+
+The Ollama LLM generates a response based on the retrieved content.
+
+Conversation Memory
+
+Each user’s conversation context is stored.
+
+The system can recall past queries to maintain context.
+
+Flexibility
+
+You can easily swap LLMs, embedding models, or vector stores.
+
+New retrieval strategies or modules (like rerankers, memory, or evaluators) can be added modularly.
+
+3. Technology Stack
+Component	Library/Tool
+Framework	FastAPI
+Document Processing	LlamaIndex
+Embeddings	Ollama Embeddings (nomic-embed-text)
+LLM	Ollama (llama3.1)
+Vector Store	ChromaDB (local)
+API Client	httpx
+Storage	File system (per-user directories)
+4. File & Folder Structure
+project_root/
+│
+├── main.py                      # Application entry point
+├── router.py                    # All routes (upload, query, etc.)
+│
+├── services/                    # Core logic modules
+│   ├── upload_service.py        # Handles uploads, calls indexer
+│   ├── index_service.py         # Indexes documents into ChromaDB
+│   ├── query_service.py         # Handles user queries
+│   ├── user_service.py          # (optional) User/session management
+│   ├── chroma_service.py        # Manages Chroma client & connections
+│
+├── core/                        # LlamaIndex + model configurations
+│   ├── config.py                # LLM and embedding model setup
+│   ├── settings.py              # Global constants and parameters
+│
+├── data/                        # Stores uploaded user files
+│   ├── user1/
+│   ├── user2/
+│
+├── db/                          # Vector database persistence
+│   ├── chroma/
+│
+├── utils/                       # Helper functions and reusable tools
+│   ├── helpers.py
+│
+├── logs/                        # Runtime logs (app, indexing, query)
+│
+└── PROJECT_OVERVIEW.txt         # Project documentation (this file)
+
+5. Architecture Design Principles
+
+Single Responsibility — Each module performs exactly one logical task.
+
+Loose Coupling — Modules interact via clean service boundaries (function calls or interfaces).
+
+High Modularity — Each LlamaIndex component (LLM, Embedding, Retriever) can be swapped without affecting others.
+
+Scalability — Designed to evolve from local to distributed deployment easily.
+
+Clarity — The folder hierarchy mirrors the natural RAG flow:
+Upload → Index → Query → Respond
+
+6. Interaction Flow Between Modules (Textual Sequence Diagram)
+Step 1: User Uploads a File
+
+The client (e.g., FastAPI docs or frontend) calls the endpoint:
+POST /upload
+
+router.py forwards the request to upload_service.py.
+
+The service:
+
+Saves the uploaded file in data/<username>/filename.
+
+Calls the index_service.index_file(username, filepath) function.
+
+Step 2: File Indexing
+
+The index_service receives the file path and username.
+
+It loads the document using SimpleDirectoryReader (from LlamaIndex).
+
+The embed_model and llm (from core/config.py) are applied.
+
+A VectorStoreIndex is built and stored in ChromaDB, under the user’s collection name (user_<username>).
+
+Indexing returns a confirmation message or object (e.g., “Indexed successfully for user X”).
+
+Step 3: Querying Documents
+
+The user sends a request to /chat or /query with a question.
+
+router.py routes this to query_service.query_documents(username, query).
+
+The query service:
+
+Loads the user’s collection from ChromaDB.
+
+Creates a query engine via index.as_query_engine().
+
+Executes semantic search and LLM completion.
+
+The response is returned as:
+
+{
+  "response": "...",
+  "sources": ["document1.txt", "document2.pdf"]
+}
+
+Step 4: (Optional) Conversation Memory
+
+Each query and response is appended to the user’s local memory log.
+
+Stored either in:
+
+A local JSON file (data/<username>/chat_history.json), or
+
+A database table (if extended later).
+
+7. Future Extensions
+
+✅ Authentication system for users
+✅ Persistent chat memory with context retrieval
+✅ Hybrid retrieval (keyword + semantic)
+✅ Reranker integration
+✅ Async indexing and background tasks
+✅ Frontend interface (React, Streamlit, or Gradio)
+
+8. Key Design Goals
+
+🔹 Modular — Each functionality lives in its own service.
+
+🔹 Extendable — Add new LlamaIndex components easily.
+
+🔹 Maintainable — Clear separation between logic and configuration.
+
+🔹 Transparent — Data and models clearly traceable per user.
+
+
+9. Mapping to LlamaIndex Concepts
+
+This section explains how each part of the project corresponds to the core components of LlamaIndex, allowing the system to remain modular and future-proof.
+
+Project Module	LlamaIndex Concept	Description
+upload_service.py	Document Loader	Handles input data (raw documents). Uses SimpleDirectoryReader or similar loaders to prepare data for ingestion.
+index_service.py	Index + Vector Store	Builds a VectorStoreIndex and persists it to ChromaDB. Represents the document embeddings and metadata for later retrieval.
+query_service.py	Retriever + QueryEngine	Retrieves relevant document chunks from the vector store and forwards them to the LLM for response generation.
+core/config.py	LLM + Embedding Model	Defines which LLM and embedding models to use (Ollama LLM and OllamaEmbedding). These can be swapped with any compatible alternatives (e.g., OpenAI, Hugging Face).
+core/settings.py	Global Parameters	Stores defaults like chunk size, top_k, temperature, etc. Controls behavior across retrieval and response synthesis.
+chroma_service.py	Vector Store Backend	Interfaces with ChromaDB, manages connections, and ensures each user’s data is stored in a unique collection.
+query_engine construction	Response Synthesizer	Automatically created by index.as_query_engine(). Synthesizes LLM-based answers from retrieved nodes.
+
+
+10. How LlamaIndex Components Interact in This Project
+Step-by-Step Flow
+
+Document Ingestion
+
+Raw file → SimpleDirectoryReader → Document objects.
+
+Documents are chunked and embedded via embed_model.
+
+The resulting vectors are stored in ChromaDB.
+
+Index Construction
+
+The VectorStoreIndex wraps around the ChromaDB storage.
+
+It maintains mappings between document nodes, metadata, and embeddings.
+
+Retrieval
+
+The user’s query triggers the Retriever.
+
+The retriever searches the vector space for top relevant chunks using similarity scoring.
+
+Response Generation
+
+The Query Engine combines retrieved chunks.
+
+The LLM (Ollama) generates a final response using retrieved context and the user query.
+
+Conversation Memory (Optional Extension)
+
+The retrieved and generated responses are appended to a per-user chat log.
+
+Future queries can be combined with this context for continuity.
+
+🧩 Design Philosophy
+
+The project is designed with maximum modularity and future scalability in mind. Each component (data loading, indexing, storage, retrieval, LLMs, and API layer) is loosely coupled and highly replaceable, allowing independent development, testing, and upgrades.
+
+Core design principles:
+
+Single Responsibility: Each module performs one well-defined function.
+
+Separation of Concerns: Logical separation between backend, retrieval logic, vector stores, and API layers.
+
+Plug-and-Play Components: Any LlamaIndex component (e.g., different retrievers, chunkers, or query engines) can be swapped without refactoring other modules.
+
+Minimal Interdependencies: Communication between components uses clean interfaces and dependency injection.
+
+Ease of Debugging: Clear directory boundaries and predictable data flow between components.
+
+⚙️ Extensibility Guidelines
+
+You can easily extend this architecture by following these conventions:
+
+Extension Type	Where to Add	Description
+New Vector Store	core/vector_stores/	Add a new file, e.g., pinecone_store.py, and update __init__.py to register it.
+New LLM or Embedding Model	core/llm/	Create a module like llm_ollama.py or llm_openai.py and import it in __init__.py.
+Custom Retriever or Query Engine	core/retrievers/	Define custom logic extending LlamaIndex retrievers.
+New Indexing Strategy	core/indexers/	Include indexing logic with new chunking or summarization methods.
+Custom API Route	api/routes/	Create a new route file and register it in api/__init__.py.
+New Extension or Plugin	extensions/	Place any experimental or external integration code here (e.g., monitoring, custom evaluation tools).
+🧠 Integration Notes (LlamaIndex-Centric)
+
+Indices: All indices should be initialized within core/indexers/ to centralize data structure management.
+
+Vector Stores: Vector store adapters (e.g., Chroma, Pinecone) are configured in core/vector_stores/ to allow smooth switching.
+
+Retrievers & Engines: Retrieval logic (semantic, keyword, hybrid) resides in core/retrievers/ so different engines can coexist.
+
+LLMs: Different LLM backends (Ollama, OpenAI, Anthropic, etc.) are interchangeable within core/llm/.
+
+Data Loaders: core/loaders/ supports diverse formats (PDF, DOCX, HTML, TXT).
+
+Config & Environment: All environment variables and constants live in config/settings.py for consistency and easy deployment.
+
+🔄 Code Organization and Data Flow Overview
+
+The system follows a clean pipeline architecture where each layer has a clear input/output relationship.
+This makes debugging, optimization, and extension straightforward.
+
+1. Document Ingestion Layer
+
+Entry Point: core/loaders/
+
+Function: Responsible for reading user-uploaded or pre-existing documents (PDF, DOCX, HTML, TXT, etc.).
+
+Output: List of Document objects (LlamaIndex-compatible) enriched with metadata.
+
+2. Preprocessing & Chunking Layer
+
+Location: core/indexers/
+
+Function: Handles text cleaning, normalization, and chunking (semantic, fixed-size, or hybrid).
+
+Output: Structured, chunked text ready for embedding and indexing.
+
+3. Embedding & Vectorization Layer
+
+Location: core/embeddings/
+
+Function: Converts chunks into embeddings using the selected embedding model.
+
+Output: Embedding vectors stored in the configured vector database.
+
+4. Vector Storage Layer
+
+Location: core/vector_stores/
+
+Function: Manages vector storage (e.g., Chroma, Pinecone) and retrieval operations.
+
+Output: Persistent or in-memory vector data accessible for search and retrieval.
+
+5. Index Management Layer
+
+Location: core/indexers/
+
+Function: Builds and maintains LlamaIndex indices connecting documents and embeddings.
+
+Output: A unified index accessible by retrievers and query engines.
+
+6. Retrieval & Query Engine Layer
+
+Location: core/retrievers/
+
+Function: Uses LlamaIndex retrievers and query engines to fetch relevant information.
+
+Output: Retrieved context chunks for the LLM to process.
+
+7. LLM Interaction Layer
+
+Location: core/llm/
+
+Function: Interfaces with the LLM (Ollama, OpenAI, etc.), passing in user queries and retrieved context.
+
+Output: Model-generated response.
+
+8. API & Interface Layer
+
+Location: api/
+
+Function: Exposes FastAPI endpoints for user interaction (chat, document upload, query).
+
+Output: JSON responses or UI data for frontend integration.
+
+9. Extensions & Custom Tools
+
+Location: extensions/
+
+Function: Hosts plugins for monitoring, analytics, prompt templates, or experimental modules.
+
+Output: Additional capabilities without changing core logic.
+
+🧩 Component Interaction Summary (High-Level Flow)
+
+This section summarizes how all major components interact — forming a clear, modular, and scalable RAG pipeline powered by FastAPI and LlamaIndex.
+
+1. User Interaction Layer
+
+Actors: End users (through FastAPI docs, frontend, or API clients).
+
+Actions: Upload documents → Ask questions → Get AI responses.
+
+Flow:
+
+User uploads a document via /upload endpoint.
+
+FastAPI handles upload → delegates processing to upload_service.
+
+After file save, upload_service calls the index_service to index the new file for that user.
+
+2. Document Processing Layer
+
+Flow:
+
+index_service reads the uploaded file (path + username).
+
+core/loaders loads and parses the document into structured text.
+
+core/indexers splits the text into semantically meaningful chunks (based on the selected chunking strategy).
+
+3. Embedding and Storage Layer
+
+Flow:
+
+core/embeddings generates embeddings for each chunk using a chosen model (OpenAI, Ollama, or HuggingFace).
+
+core/vector_stores saves these embeddings in a ChromaDB collection associated with the user (e.g., chroma_store/{username}).
+
+This ensures per-user isolation and easy retrieval of user-specific data.
+
+4. Query Handling Layer
+
+Flow:
+
+When a user submits a query through /query:
+
+FastAPI routes it to query_service.
+
+The service invokes core/retrievers, which fetches top relevant chunks from the user’s vector store.
+
+The retrieved text + query is passed to core/llm (e.g., Ollama, OpenAI) for contextual response generation.
+
+5. Response Delivery Layer
+
+Flow:
+
+The LLM output is processed (optionally refined or summarized).
+
+query_service returns the result to FastAPI, which sends a structured JSON response back to the user.
+
+The response includes:
+
+The generated answer.
+
+References to source chunks/documents.
+
+Optional metadata for display (like document title, similarity score, etc.).
+
+6. Logging, Configuration & Extensibility
+
+Logging:
+Centralized logging configuration in config/logging.py ensures that every service logs its activity and errors with consistent formatting.
+
+Configuration Management:
+All API keys, model names, and storage paths are managed through environment variables loaded by config/settings.py.
+
+Extensibility:
+New models, vector databases, or retrievers can be added without changing existing code — just by:
+
+Adding a new file under core/ (e.g., core/embeddings/huggingface.py)
+
+Registering it in the corresponding service.
+
+Updating configuration to use it.
+
+🏗️ Summary
+
+The architecture is:
+
+Highly modular — each component does one job.
+
+Easily maintainable — changes in one module do not affect others.
+
+Future-proof — designed to support multiple models, retrievers, and document types.
+
+User-specific — each user’s data, vectors, and indices are isolated for security and scalability.
