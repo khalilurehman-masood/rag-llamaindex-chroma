@@ -1,0 +1,21 @@
+from fastapi import FastAPI, UploadFile, Form
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+# ✅ Add CORS before routers
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.post("/upload")
+async def upload_file(user_name: str = Form(...), upload_file: UploadFile = None):
+    content = await upload_file.read()
+    with open(upload_file.filename, "wb") as f:
+        f.write(content)
+
+    return {"message": f"Uploaded by {user_name}", "filename": upload_file.filename}

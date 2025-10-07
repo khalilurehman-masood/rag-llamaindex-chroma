@@ -41,5 +41,5 @@ Settings.embed_model = embed_model
 
 BASE_DIR =Path(__file__).resolve().parent.parent
 
-CHROMA_PATH = (BASE_DIR/"db").as_posix()
+CHROMA_PATH = (BASE_DIR/"vector_stores").as_posix()
 
