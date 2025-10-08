@@ -4,3 +4,8 @@ data/*
 !data/
 vector_stores/*
 !vector_stores
+
+qdrant/*
+!qdrant
+chroma/*
+!chroma
