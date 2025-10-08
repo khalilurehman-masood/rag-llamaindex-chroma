@@ -1,11 +1,12 @@
 .venv/
 __pycache__/
 data/*
-!data/
+!data/.gitkeep
 vector_stores/*
-!vector_stores
+!vector_stores.gitkeep
 
 qdrant/*
-!qdrant
+!qdrant/.gitkeep
 chroma/*
-!chroma
+!chroma/.gitkeep
+.venv312
