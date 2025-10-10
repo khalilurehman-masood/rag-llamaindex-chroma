@@ -49,7 +49,6 @@ Document Processing	LlamaIndex
 Embeddings	Ollama Embeddings (nomic-embed-text)
 LLM	Ollama (llama3.1)
 Vector Store	ChromaDB (local)
-API Client	httpx
 Storage	File system (per-user directories)
 4. File & Folder Structure
 project_root/
@@ -72,8 +71,10 @@ project_root/
 │   ├── user1/
 │   ├── user2/
 │
-├── db/                          # Vector database persistence
+├── db/                          # Vector database setup
 │   ├── chroma/
+|
+|──vector_stores/                 #vector database persistance
 │
 ├── utils/                       # Helper functions and reusable tools
 │   ├── helpers.py
@@ -151,6 +152,8 @@ Stored either in:
 A local JSON file (data/<username>/chat_history.json), or
 
 A database table (if extended later).
+
+An in-memory dict
 
 7. Future Extensions
 

@@ -3,6 +3,8 @@ from core.settings import llm, embed_model
 from core.settings import CHROMA_PATH
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, settings,StorageContext
 from llama_index.vector_stores.chroma import ChromaVectorStore
+from chromadb.utils.embedding_functions import OllamaEmbeddingFunction
+
 from db.chroma_client import get_vector_db_client
 def index_user_file(user_name:str, user_dir: str) -> dict:
     
@@ -17,6 +19,11 @@ def index_user_file(user_name:str, user_dir: str) -> dict:
     vector_client = get_vector_db_client()
     print(vector_client.list_collections())
 
+    ollama_ef = OllamaEmbeddingFunction(
+    url="http://192.168.2.62:11434",
+    model_name="nomic-embed-text:latest",
+    )
+
     try:
         collection = vector_client.get_collection(user_name)
         vector_store = ChromaVectorStore(chroma_collection=collection)
@@ -26,7 +33,7 @@ def index_user_file(user_name:str, user_dir: str) -> dict:
         print(engine.query("hugging").response)
     except Exception:
         print("Collection not found, creating new one.")
-        collection = vector_client.create_collection(user_name)
+        collection = vector_client.create_collection(user_name, embedding_function=ollama_ef)
         vector_store = ChromaVectorStore(chroma_collection=collection)
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
         VectorStoreIndex.from_documents(docs, storage_context=storage_context, embed_model = embed_model)

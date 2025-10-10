@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from routes import router
 import core.settings
+from openinference.instrumentation.llama_index import LlamaIndexInstrumentor
+from phoenix.otel import register
 
+tracer_provider = register()
+LlamaIndexInstrumentor().instrument(tracer_provider=tracer_provider)
 app = FastAPI()
 
 

@@ -10,3 +10,5 @@ qdrant/*
 chroma/*
 !chroma/.gitkeep
 .venv312
+chats/*
+!chats/.gitkeep
