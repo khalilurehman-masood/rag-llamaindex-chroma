@@ -31,8 +31,8 @@ async def upload_file(
 #     return {"query_id":query_id, "query_results":results.get(query_id,"processing....")}
 
 @router.get("/query")
-def query_index(user_name:str, query:str):
+async def query_index(user_name:str, query:str):
     # result =query_user_file(user_name = user_name, query = query)
-    result =query_user_file_with_memory(user_name = user_name, query = query)
+    result =await query_user_file_with_memory(user_name = user_name, query = query)
 
     return result

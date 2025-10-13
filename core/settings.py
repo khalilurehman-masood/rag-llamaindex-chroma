@@ -42,4 +42,7 @@ Settings.embed_model = embed_model
 BASE_DIR =Path(__file__).resolve().parent.parent
 
 CHROMA_PATH = BASE_DIR/"vector_stores"
+CHATS_PATH = BASE_DIR/"chats"
+
+SQLITE_STRING = "sqlite+aiosqlite:///"  #sqlite string
 
