@@ -1,8 +1,7 @@
 from llama_index.core import StorageContext,load_index_from_storage
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from db.chroma_client import get_vector_db_client
-
-from core.settings import embed_model, CHROMA_PATH
+from core.settings import CHROMA_PATH
 import logging
 def get_index(user_name:str):
     chroma_client = get_vector_db_client()

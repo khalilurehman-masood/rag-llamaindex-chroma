@@ -14,6 +14,7 @@ EMBED_MODEL = "nomic-embed-text:latest"
 llm = Ollama(
     model = LLM_MODEL,
     base_url = MODELS_BASE_URL,
+    request_timeout=120
 )
 
 embed_model = OllamaEmbedding(
@@ -21,7 +22,7 @@ embed_model = OllamaEmbedding(
     base_url=MODELS_BASE_URL
 )
 
-embed_fn = OllamaEmbeddingFunction(
+ollama_ef= OllamaEmbeddingFunction(
      url="http://192.168.2.62:11434",
     model_name="nomic-embed-text:latest",
 )
@@ -46,3 +47,10 @@ CHATS_PATH = BASE_DIR/"chats"
 
 SQLITE_STRING = "sqlite+aiosqlite:///"  #sqlite string
 
+CHUNK_SIZE = 300
+CHUNK_OVERLAP = 50
+
+FETCH_K = 60
+TOP_K = 6
+MMR_LAMBDA = 0.6
+USE_RERANKER = True

@@ -3,7 +3,7 @@ from llama_index.core.llms import ChatMessage
 from chromadb.utils.embedding_functions import OllamaEmbeddingFunction
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.core.memory import StaticMemoryBlock,FactExtractionMemoryBlock,VectorMemoryBlock
-from core.settings import llm, embed_model, embed_fn, CHATS_PATH,SQLITE_STRING
+from core.settings import llm, embed_model, ollama_ef, CHATS_PATH,SQLITE_STRING
 from db.chroma_client import get_vector_db_client
 import os
 from pathlib import Path
@@ -89,7 +89,7 @@ def get_chats_vector_store(user_name:str, chat_id:str)->ChromaVectorStore:
 
     except:
         vector_client = get_vector_db_client()
-        chat_collection = vector_client.create_collection(collection_name, embedding_function=embed_fn)
+        chat_collection = vector_client.create_collection(collection_name, embedding_function=ollama_ef)
         vector_store = ChromaVectorStore.from_collection(collection=chat_collection)
         return vector_store
         

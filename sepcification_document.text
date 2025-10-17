@@ -61,23 +61,27 @@ project_root/
 │   ├── index_service.py         # Indexes documents into ChromaDB
 │   ├── query_service.py         # Handles user queries
 │   ├── user_service.py          # (optional) User/session management
-│   ├── chroma_service.py        # Manages Chroma client & connections
+│   ├── memory_service.py        # Initializes or returns llama-index memory instance given user_name and chat_id(str)
 │
 ├── core/                        # LlamaIndex + model configurations
-│   ├── config.py                # LLM and embedding model setup
-│   ├── settings.py              # Global constants and parameters
+│   ├── settings.py              # Global constants and parameters plus Ollama models etc
 │
 ├── data/                        # Stores uploaded user files
 │   ├── user1/
 │   ├── user2/
 │
+|──chats/                       #main directory for storing users chats 
+|   ├── user1/                  #separate directory for each user's chats
+|       ├── chat1.sqlite3
+│       ├── chat2.sqlite3
+│   ├── user2/
+|
 ├── db/                          # Vector database setup
 │   ├── chroma/
 |
-|──vector_stores/                 #vector database persistance
+|──vector_stores/                 #vector database persistance separate collection for each user
 │
 ├── utils/                       # Helper functions and reusable tools
-│   ├── helpers.py
 │
 ├── logs/                        # Runtime logs (app, indexing, query)
 │
