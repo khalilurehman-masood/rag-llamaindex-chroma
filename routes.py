@@ -10,17 +10,18 @@ router = APIRouter()
 @router.post("/upload")
 async def upload_file(
     user_name: str = Form(...),
+    roles:str=Form(...),
     upload_file: UploadFile = None,
     background_tasks : BackgroundTasks = None
 
 ):
-    result = await upload_user_file(user_name=user_name,upload_file=upload_file, background_tasks = background_tasks)
+    result = await upload_user_file(user_name=user_name,roles = roles, upload_file=upload_file, background_tasks = background_tasks)
     return result
 
 
 @router.post("/query")
-async def query_index(user_name:str=Form(...), query:str=Form(...)):
+async def query_index(user_name:str=Form(...),role:str=Form(...), query:str=Form(...)):
     # result =query_user_file(user_name = user_name, query = query)
-    result =await query_user_file(user_name = user_name, query = query)
+    result =await query_user_file(user_name = user_name,role=role, query = query)
 
     return result

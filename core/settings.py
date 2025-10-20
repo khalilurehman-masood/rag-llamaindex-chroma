@@ -7,7 +7,7 @@ from chromadb.utils.embedding_functions import OllamaEmbeddingFunction
 from pathlib import Path
 
 MODELS_BASE_URL = "http://192.168.2.62:11434"
-LLM_MODEL = "llama3:latest"
+LLM_MODEL = "koesn/llama3-8b-instruct:latest"
 EMBED_MODEL = "nomic-embed-text:latest"
 
 

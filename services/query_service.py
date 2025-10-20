@@ -9,16 +9,18 @@ from llama_index.core import get_response_synthesizer
 from core.settings import llm,embed_model, CHROMA_PATH, FETCH_K
 from services.memory_service import get_memory
 from services.get_index_service import get_index
-from llama_index.core.retrievers import VectorIndexRetriever, RecursiveRetriever
+from llama_index.core.retrievers import VectorIndexRetriever
 from llama_index.core.postprocessor import SimilarityPostprocessor
-from llama_index.core.vector_stores import (MetadataFilter, MetadataFilters, FilterOperator)
-async def query_user_file(user_name:str, query:str):
+from custom_postprocessors.unique_node_postprocessor import UniqueNodePostprocessor
+from llama_index.core.vector_stores import (MetadataFilter, MetadataFilters, FilterOperator, ExactMatchFilter)
+async def query_user_file(user_name:str,role:str, query:str):
+
     memory = get_memory(user_name, "abcd")
 
     index = get_index(user_name)
     
     # chat_engine = index.as_chat_engine(llm=llm, chat_mode="condense_plus_context",memory = memory, system_prompt=("you are a helpful assistant that can answer general questions as well as quetions asked from the provided context. Please be concise."))
-    chat_engine = build_chat_engine(index,llm=llm,memory= memory)
+    chat_engine = build_chat_engine(index,llm=llm,role=role,memory= memory)
     print("befor invoking..........")
     # response =await chat_engine.achat(query)
     response = await chat_engine.achat(query)
@@ -30,6 +32,10 @@ async def query_user_file(user_name:str, query:str):
         "scores of retrieved nodes":[node.score for node in response.sources[0].raw_output],
         "page labels for retrieved nodes":[node.node.extra_info['page_label'] for node in response.sources[0].raw_output],
         "File names for the retrieved nodes":[node.node.extra_info['file_name'] for node in response.sources[0].raw_output],
+        "Start Char IDs":[(node.node.start_char_idx,node.node.end_char_idx)  for node in response.sources[0].raw_output],
+        "sep" : "="*100,
+        # "meta_data":[node.node.extra_info["roles"] for node in response.sources[0].raw_output],
+
         "Text of the node":[node.text for node in response.sources[0].raw_output],
         "just a seperator":"_"*100,
         "sources":response
@@ -37,22 +43,26 @@ async def query_user_file(user_name:str, query:str):
     }
 
 
-def build_chat_engine(index:VectorStoreIndex, llm, memory=None)-> ContextChatEngine:
-    
+def build_chat_engine(index:VectorStoreIndex, llm,role, memory=None, )-> ContextChatEngine:
+    print("**************************************************")
+    print(role)
 
     filters = MetadataFilters(
         filters=[
             MetadataFilter(
-                key="file_name",value="ICD-10-CM FY25 Guidelines October 1, 2024 (1).pdf",operator=FilterOperator.EQ
-            )
+                key=role,value="true",operator="=="
+            ),
+            # ExactMatchFilter( "roles",role, operator=FilterOperator.CONTAINS)
+            # ExactMatchFilter(key=role,value="true",operator=FilterOperator.EQ)
+
         ]
     )
 
 
-    retriever = VectorIndexRetriever(index=index, similarity_top_k=10)
+    retriever = VectorIndexRetriever(index=index, similarity_top_k=5, filters=filters)
 
     #define node postprocessors here
-    node_postprocessors = [SimilarityPostprocessor(similarity_cutoff=0.3)]
+    node_postprocessors = [SimilarityPostprocessor(similarity_cutoff=0.7),UniqueNodePostprocessor()]
 
   
 
@@ -60,7 +70,7 @@ def build_chat_engine(index:VectorStoreIndex, llm, memory=None)-> ContextChatEng
         llm= llm,
         memory = memory,
         retriever=retriever,
-        # node_postprocessors = node_postprocessors,
+        node_postprocessors = node_postprocessors,
         system_prompt=(
             "You are a helpful assistant that answers both general and context-based "
             "questions from the provided documents. Please be concise."

@@ -7,16 +7,25 @@ from chromadb.utils.embedding_functions import OllamaEmbeddingFunction
 from llama_index.core import load_index_from_storage
 from db.chroma_client import get_vector_db_client
 from services.ingest_service import build_ingestion_pipeline
+from llama_index.core import Document
+import json
 
 
-
-async def index_user_file(user_name:str, user_dir: str) -> dict:
-    
+async def index_user_file(user_name:str, roles:list[str],user_dir: str) -> dict:
+    def set_document_metadata(file_path:Path):
+        # serialized_roles = json.dumps(roles)
+        # return {"roles": serialized_roles}
+        allowed_roles = {}
+        for role in roles:
+            allowed_roles[role.lower()]="true"
+        return allowed_roles
+            
     
     Path(CHROMA_PATH).mkdir(parents=True, exist_ok=True)
 
+
     # user_dir = Path(user_dir)
-    docs = SimpleDirectoryReader(user_dir).load_data()
+    docs = SimpleDirectoryReader(user_dir, file_metadata=set_document_metadata).load_data()
 
 
 
