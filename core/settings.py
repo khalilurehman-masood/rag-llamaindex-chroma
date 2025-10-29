@@ -14,7 +14,7 @@ EMBED_MODEL = "nomic-embed-text:latest"
 llm = Ollama(
     model = LLM_MODEL,
     base_url = MODELS_BASE_URL,
-    request_timeout=120
+    request_timeout=60
 )
 
 embed_model = OllamaEmbedding(
@@ -44,7 +44,7 @@ BASE_DIR =Path(__file__).resolve().parent.parent
 
 CHROMA_PATH = BASE_DIR/"vector_stores"
 CHATS_PATH = BASE_DIR/"chats"
-
+STORAGE_PATH =  BASE_DIR/"storage"
 SQLITE_STRING = "sqlite+aiosqlite:///"  #sqlite string
 
 CHUNK_SIZE = 300

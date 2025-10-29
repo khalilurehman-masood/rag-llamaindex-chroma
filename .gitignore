@@ -12,3 +12,6 @@ chroma/*
 .venv312
 chats/*
 !chats/.gitkeep
+
+storage/*
+!storage/.gitkeep

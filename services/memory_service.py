@@ -53,7 +53,7 @@ def get_memory_blocks(user_name:str, chat_id:str)->list:
     memory_blocks=[
         StaticMemoryBlock(
         name="core-info",
-        static_content="My name is khalil, I line in Islamabad, I work with llamaindex.",
+        static_content="My name is khalil, I live in Islamabad, I work with llamaindex.",
         priority=0
     ),
 
