@@ -11,7 +11,7 @@ from core import settings
 import chromadb
 
 
-def build_ingestion_pipeline(vector_store, doc_store)->IngestionPipeline:
+def build_ingestion_pipeline(vector_store)->IngestionPipeline:
 
     pipeline = IngestionPipeline(
         transformations=[
@@ -22,7 +22,7 @@ def build_ingestion_pipeline(vector_store, doc_store)->IngestionPipeline:
 
         ],
         vector_store=vector_store,
-        docstore=doc_store,
+
     
     )
 
