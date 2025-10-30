@@ -13,13 +13,7 @@ PRIVILEGED_ROLES={
 
 def get_documents_list(role:str,department:str):
     
-    # storage_context = get_storage_context(department=department)
-    # docstore = storage_context.docstore
-
-
-    # documents = set()
-    # for doc_id, doc in docstore.docs.items():
-    #     metadata = doc.metadata or {}
+   
 
     client = get_vector_db_client()
     collection = client.get_collection(name=department)
@@ -53,26 +47,24 @@ def delete_item(role:str, department:str ,type:str,identifier:str):
     if type =="document":
         ref_doc_idx = get_ref_doc_idx(department=department,doc_name=identifier)
         doc_idx = get_doc_idx(department=department, doc_name=identifier)
-        storage_context = get_storage_context(department=department)
-        index = load_index_from_storage(storage_context=storage_context)
+        # storage_context = get_storage_context(department=department)
+        # index = load_index_from_storage(storage_context=storage_context)
+        index = get_index(department=department)
 
-        # storage_context  = index.storage_context
-        # for doc_id in doc_idx:
-        #     index.storage_context.docstore.delete_document(doc_id=doc_id)
-        print(f"entries in docstore befor deletion{len(index.storage_context.docstore.docs)}")
         for ref_doc_id in ref_doc_idx:
-            index.delete_ref_doc(ref_doc_id, delete_from_docstore=True )
+            index.delete_ref_doc(ref_doc_id)
 
        
             
             
-        print(create_or_get_storage_context_path(department=department))
-        index.storage_context.persist(create_or_get_storage_context_path(department=department))
+        # print(create_or_get_storage_context_path(department=department))
+        # index.storage_context.persist(create_or_get_storage_context_path(department=department))
         # storage_path = create_or_get_storage_context_path(department=department)
         # storage_context.persist(persist_dir=storage_path)
-        print(f"entries in docstore after deletion{len(index.storage_context.docstore.docs)}")
+        # print(f"entries in docstore after deletion{len(index.storage_context.docstore.docs)}")
 
         print("Document Deleted succesfully!")
+        return "Document Deleted!"
 
     if type =="collection":
         result = delete_collection_and_dir(department)

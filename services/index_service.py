@@ -119,10 +119,7 @@ async def index_user_file(user_name:str, department:str, roles:list[str], user_d
         collection = vector_client.create_collection(department, embedding_function=ollama_ef)
         vector_store = ChromaVectorStore(chroma_collection=collection)
         print("storage context recieved")
-        index = VectorStoreIndex(
-            nodes=[],
-            embed_model=embed_model
-        )
+        index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
 
     
         

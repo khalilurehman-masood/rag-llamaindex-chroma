@@ -8,16 +8,11 @@ def get_index(department:str):
     try:
         collection = chroma_client.get_collection(department)
         vector_store = ChromaVectorStore(chroma_collection=collection)
-        storage_context = get_storage_context(department=department)
-        print("after getting storage context within get_index")
-        # storage_context = StorageContext.from_defaults(vector_store=vector_store, persist_dir=STORAGE_PATH)
-        # index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
-        index = load_index_from_storage(storage_context=storage_context)
-        print("after index initialization in get_index")
+        index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
         return index
     
     except Exception as e:
-        logging.error(f"Failed to create index for {department}: {e}")
+        logging.error(f"Failed to get index for {department}: {e}")
         raise
 
 

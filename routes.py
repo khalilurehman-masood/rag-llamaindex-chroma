@@ -4,7 +4,6 @@ from services.upload_service import upload_user_file
 # from services.query_service import query_user_file
 from services.query_service import query_user_file
 # from services.query_service import run_query_task
-from core.temp_state import results
 from services.documents_service import get_documents_list, delete_item,update_item,get_chunks_list
 router = APIRouter()
 
